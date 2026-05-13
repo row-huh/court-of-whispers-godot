@@ -1,0 +1,23 @@
+[remap]
+
+importer="YATI"
+type="PackedScene"
+uid="uid://cx7wvbs78gev"
+path="res://.godot/imported/RockSlopes_Rules.tmx-3b51b7e134f015884eeac3dff3c249c5.tscn"
+
+[deps]
+
+source_file="res://assets/The Fan-tasy Tileset (Free) 1.5.7/The Fan-tasy Tileset (Free)/Tiled/Tilemaps/Rules/RockSlopes_Rules.tmx"
+dest_files=["res://.godot/imported/RockSlopes_Rules.tmx-3b51b7e134f015884eeac3dff3c249c5.tscn"]
+
+[params]
+
+use_default_filter=false
+add_class_as_metadata=false
+add_id_as_metadata=false
+no_alternative_tiles=false
+map_wangset_to_terrain=false
+custom_data_prefix="data_"
+tiled_project_file=""
+post_processor=""
+save_tileset_to=""
