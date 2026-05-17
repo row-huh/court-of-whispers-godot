@@ -1,20 +1,64 @@
 extends CharacterBody2D
 
+signal nearby_interactable_changed(npc: NpcAgent)
+
 @export var speed: float = 200
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var last_direction: Vector2 = Vector2.DOWN
+var nearby_interactable: Interactable = null
+var movement_locked: bool = false
+
+
+func _ready() -> void:
+	add_to_group("player")
+	collision_layer = PhysicsLayers.PLAYER
+	collision_mask = PhysicsLayers.WORLD | PhysicsLayers.NPC
+	GameManager.dialogue_requested.connect(_on_dialogue_lock)
+	GameManager.dialogue_closed.connect(_on_dialogue_unlock)
+	GameManager.state_changed.connect(_on_state_changed)
+
+
+func _on_dialogue_lock(_id: String) -> void:
+	movement_locked = true
+	velocity = Vector2.ZERO
+
+
+func _on_dialogue_unlock() -> void:
+	movement_locked = false
+
+
+func _on_state_changed() -> void:
+	movement_locked = GameManager.dialogue_open or GameManager.status != "playing"
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact") and nearby_interactable and nearby_interactable.can_interact():
+		nearby_interactable.interact(self)
+
+
+func register_interactable(area: Interactable) -> void:
+	if nearby_interactable == area:
+		return
+	nearby_interactable = area
+	var npc := area.get_parent() as NpcAgent
+	nearby_interactable_changed.emit(npc)
+
+
+func unregister_interactable(area: Interactable) -> void:
+	if nearby_interactable != area:
+		return
+	nearby_interactable = null
+	nearby_interactable_changed.emit(null)
+
 
 func _update_animation(direction: Vector2) -> void:
-	var anim = ""
-
-	# choose idle vs walking
-	var prefix = "idle"
+	var anim := ""
+	var prefix := "idle"
 	if direction != Vector2.ZERO:
 		prefix = "walking"
 
-	# choose direction
 	if last_direction.x > 0:
 		anim = prefix + "_right"
 	elif last_direction.x < 0:
@@ -28,14 +72,28 @@ func _update_animation(direction: Vector2) -> void:
 		sprite.play(anim)
 
 
-func _physics_process(_delta):
-	var direction = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+func _physics_process(_delta: float) -> void:
+	if movement_locked:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		_update_animation(Vector2.ZERO)
+		return
 
-	# remove diagonal movement
-	if Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left"):
+	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	if Input.is_action_pressed("move_left") or Input.is_action_pressed("move_right"):
 		direction.y = 0
-	elif Input.is_action_pressed("ui_up") or Input.is_action_pressed("ui_down"):
+	elif Input.is_action_pressed("move_up") or Input.is_action_pressed("move_down"):
 		direction.x = 0
+	elif (
+		Input.is_action_pressed("ui_right")
+		or Input.is_action_pressed("ui_left")
+		or Input.is_action_pressed("ui_up")
+		or Input.is_action_pressed("ui_down")
+	):
+		if Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left"):
+			direction.y = 0
+		elif Input.is_action_pressed("ui_up") or Input.is_action_pressed("ui_down"):
+			direction.x = 0
 	else:
 		direction = Vector2.ZERO
 
@@ -43,7 +101,6 @@ func _physics_process(_delta):
 	velocity = direction * speed
 	move_and_slide()
 
-	# store last direction when moving
 	if direction != Vector2.ZERO:
 		last_direction = direction
 

@@ -1,0 +1,38 @@
+{
+  "commander": {
+    "name": "Sir Alaric",
+    "title": "Army Commander",
+    "emoji": "⚔️",
+    "home": "Barracks",
+    "color": "#b2362d",
+    "accent": "#c7c7d6",
+    "warning": "If his trust in you breaks, he will march straight to the Bishop."
+  },
+  "citizen": {
+    "name": "Mira",
+    "title": "Citizen Representative",
+    "emoji": "🌾",
+    "home": "Market",
+    "color": "#3b7a3b",
+    "accent": "#d45632",
+    "warning": "Lose her faith and she will whisper to the Bishop before nightfall."
+  },
+  "priest": {
+    "name": "Father Edran",
+    "title": "Palace Priest",
+    "emoji": "🕯️",
+    "home": "Chapel",
+    "color": "#d8d8d8",
+    "accent": "#d5a42d",
+    "warning": "A nervous man with a loose tongue. Push too hard without leverage and he runs to the Bishop."
+  },
+  "bishop": {
+    "name": "Bishop Cyril",
+    "title": "The King's Bishop",
+    "emoji": "✝️",
+    "home": "Cathedral",
+    "color": "#3152b8",
+    "accent": "#e6e2d8",
+    "warning": "He is the hunter. Every careless word becomes evidence. Speak only if you must."
+  }
+}

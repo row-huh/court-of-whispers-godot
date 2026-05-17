@@ -1,6 +1,7 @@
-[gd_scene format=3 uid="uid://dlrk0hkpq35vu"]
+[gd_scene load_steps=3 format=3 uid="uid://dlrk0hkpq35vu"]
 
 [ext_resource type="Script" uid="uid://cq01isfl1iogv" path="res://scripts/player.gd" id="1_qhqgy"]
+[ext_resource type="Script" uid="uid://b7vr78jejpq0s" path="res://scenes/camera_2d.gd" id="2_cam"]
 [ext_resource type="Texture2D" uid="uid://jvk2ndufa2h4" path="res://assets/The Fan-tasy Tileset (Free) 1.5.7/The Fan-tasy Tileset (Free)/Art/Characters/Main Character/Character_Walk.png" id="2_qhqgy"]
 [ext_resource type="Texture2D" uid="uid://ktajhsej5my2" path="res://assets/The Fan-tasy Tileset (Free) 1.5.7/The Fan-tasy Tileset (Free)/Art/Characters/Main Character/Character_Idle.png" id="3_dqkch"]
 
@@ -286,3 +287,6 @@ animation = &"walking_down"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=269427004]
 position = Vector2(-2, -8)
 shape = SubResource("CapsuleShape2D_3v2ag")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("2_cam")

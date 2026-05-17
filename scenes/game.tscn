@@ -2,18 +2,46 @@
 
 [ext_resource type="PackedScene" uid="uid://dlrk0hkpq35vu" path="res://scenes/player.tscn" id="1_uwrxv"]
 [ext_resource type="PackedScene" uid="uid://sm5iamctlmdr" path="res://assets/The Fan-tasy Tileset (Free) 1.5.7/The Fan-tasy Tileset (Free)/Tiled/Tilemaps/Beginning Fields.tmx" id="1_yqjtg"]
-[ext_resource type="Script" uid="uid://b7vr78jejpq0s" path="res://scenes/camera_2d.gd" id="3_lnu2h"]
+[ext_resource type="PackedScene" uid="uid://c8npcagent01" path="res://scenes/npc/npc_agent.tscn" id="4_npc"]
+[ext_resource type="PackedScene" uid="uid://courtgameui01" path="res://scenes/ui/game_ui.tscn" id="5_ui"]
+[ext_resource type="Script" uid="uid://cvts20oeuym0n" path="res://scripts/navigation_setup.gd" id="6_nav"]
+[ext_resource type="Script" uid="uid://b5j3lqhfnwa68" path="res://scripts/prop_collision_spawner.gd" id="7_props"]
+[ext_resource type="Script" uid="uid://b68olgrmrrhof" path="res://scripts/player_interact_bridge.gd" id="8_bridge"]
 
-[node name="Game" type="Node2D" unique_id=1613542558]
+[node name="Game" type="Node2D" unique_id=599054306]
 
-[node name="Beginning Fields" parent="." unique_id=1773577244 instance=ExtResource("1_yqjtg")]
+[node name="Beginning Fields" parent="." unique_id=702740180 instance=ExtResource("1_yqjtg")]
 position = Vector2(-166, -155)
 
-[node name="player" parent="." unique_id=1214711166 instance=ExtResource("1_uwrxv")]
+[node name="PropCollisions" type="Node2D" parent="." unique_id=538338647]
+script = ExtResource("7_props")
+map_root_path = NodePath("../Beginning Fields")
+
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=2074778100]
+script = ExtResource("6_nav")
+region_rect = Rect2(-60, -60, 380, 380)
+
+[node name="Agents" type="Node2D" parent="." unique_id=1381096304]
+
+[node name="Commander" parent="Agents" unique_id=800360479 instance=ExtResource("4_npc")]
+position = Vector2(120, 40)
+
+[node name="Citizen" parent="Agents" unique_id=727105932 instance=ExtResource("4_npc")]
+position = Vector2(40, 140)
+agent_id = "citizen"
+
+[node name="Priest" parent="Agents" unique_id=1658398775 instance=ExtResource("4_npc")]
+position = Vector2(200, 120)
+agent_id = "priest"
+
+[node name="Bishop" parent="Agents" unique_id=1982258432 instance=ExtResource("4_npc")]
+position = Vector2(240, 50)
+agent_id = "bishop"
+
+[node name="player" parent="." unique_id=2112464386 instance=ExtResource("1_uwrxv")]
 position = Vector2(21, 21)
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1276941225 node_paths=PackedStringArray("target")]
-position = Vector2(21, 21)
-zoom = Vector2(4, 4)
-script = ExtResource("3_lnu2h")
-target = NodePath("../player")
+[node name="PlayerInteractBridge" type="Node" parent="player" unique_id=164981624]
+script = ExtResource("8_bridge")
+
+[node name="GameUI" parent="." unique_id=604949701 instance=ExtResource("5_ui")]
