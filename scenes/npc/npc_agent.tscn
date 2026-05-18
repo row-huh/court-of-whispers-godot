@@ -3,6 +3,23 @@
 [ext_resource type="Script" uid="uid://8xn44rcaqa6d" path="res://scripts/npc_agent.gd" id="1_npc"]
 [ext_resource type="Script" uid="uid://c24v1f2skr47v" path="res://scripts/interactable.gd" id="2_int"]
 [ext_resource type="Texture2D" uid="uid://d04ioufvkk66e" path="res://assets/ArmyCommanderWalk.png" id="2_so02n"]
+[ext_resource type="Texture2D" uid="uid://pkwu0p5bxrfb" path="res://assets/mira.png" id="2_vvmg4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coyuk"]
+atlas = ExtResource("2_vvmg4")
+region = Rect2(0, 98, 41, 49)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_se5bp"]
+atlas = ExtResource("2_vvmg4")
+region = Rect2(41, 98, 41, 49)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ax6yu"]
+atlas = ExtResource("2_vvmg4")
+region = Rect2(82, 98, 41, 49)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ulm5a"]
+atlas = ExtResource("2_vvmg4")
+region = Rect2(123, 98, 41, 49)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vvmg4"]
 atlas = ExtResource("2_so02n")
@@ -70,7 +87,19 @@ region = Rect2(123, 98, 41, 49)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_npc"]
 animations = [{
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coyuk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_se5bp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ax6yu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ulm5a")
+}],
 "loop": true,
 "name": &"idle_down",
 "speed": 3.0
@@ -172,8 +201,8 @@ script = ExtResource("1_npc")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=117819378]
 position = Vector2(8, -7)
 sprite_frames = SubResource("SpriteFrames_npc")
-animation = &"walking_down"
-frame_progress = 0.9158973
+animation = &"idle_down"
+frame_progress = 0.87791014
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=171052063]
 position = Vector2(-2, -8)

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dosfr2i8strsh"
+path="res://.godot/imported/WITHOUT ME Medieval Bardcore Version Eminem vs Beedle the Bardcore.mp3-3e5bac58aa020964fd140ae042c293ee.mp3str"
+
+[deps]
+
+source_file="res://assets/audios/WITHOUT ME Medieval Bardcore Version Eminem vs Beedle the Bardcore.mp3"
+dest_files=["res://.godot/imported/WITHOUT ME Medieval Bardcore Version Eminem vs Beedle the Bardcore.mp3-3e5bac58aa020964fd140ae042c293ee.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

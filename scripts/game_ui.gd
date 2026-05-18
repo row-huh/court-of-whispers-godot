@@ -91,10 +91,8 @@ func _update_api_badge() -> void:
 	if GameManager.use_http_ai:
 		var url := HttpAgentClient.base_url if HttpAgentClient else "?"
 		badge.text = "AI: %s" % url
-		badge.visible = GameManager.status == "playing" or GameManager.status == "intro"
 	else:
 		badge.text = "Offline stub dialogue"
-		badge.visible = GameManager.status == "intro"
 
 
 func _populate_night_modal() -> void:
@@ -114,10 +112,6 @@ func _populate_night_modal() -> void:
 	elif GameManager.night_log.is_empty():
 		bb += "The court sleeps. Nothing stirs."
 	list.text = bb
-
-
-func _on_begin_pressed() -> void:
-	GameManager.begin_game()
 
 
 func _on_restart_pressed() -> void:

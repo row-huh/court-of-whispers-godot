@@ -1,17 +1,19 @@
-[gd_scene load_steps=7 format=3 uid="uid://courtgameui01"]
+[gd_scene format=3 uid="uid://courtgameui01"]
 
-[ext_resource type="Script" path="res://scripts/game_ui.gd" id="1_ui"]
-[ext_resource type="Script" path="res://scripts/dialogue_controller.gd" id="2_dlg"]
-[ext_resource type="Script" path="res://scripts/game_hud.gd" id="3_hud"]
-[ext_resource type="Script" path="res://scripts/touch_controls.gd" id="4_touch"]
-[ext_resource type="PackedScene" path="res://scenes/ui/jrpg_dialogue_box.tscn" id="5_jrpg"]
-[ext_resource type="PackedScene" path="res://scenes/ui/player_input_modal.tscn" id="6_input"]
+[ext_resource type="Script" uid="uid://bc8a2i66pb4wk" path="res://scripts/game_ui.gd" id="1_ui"]
+[ext_resource type="Script" uid="uid://b4hqu4kfaywua" path="res://scripts/dialogue_controller.gd" id="2_dlg"]
+[ext_resource type="Script" uid="uid://ci4eeuogx2max" path="res://scripts/game_hud.gd" id="3_hud"]
+[ext_resource type="Script" uid="uid://bgym0segijyec" path="res://scripts/touch_controls.gd" id="4_touch"]
+[ext_resource type="PackedScene" uid="uid://cwk4jlbrk2q4k" path="res://scenes/ui/jrpg_dialogue_box.tscn" id="5_jrpg"]
+[ext_resource type="PackedScene" uid="uid://dngqxruh16bee" path="res://scenes/ui/player_input_modal.tscn" id="6_input"]
 [ext_resource type="Texture2D" uid="uid://mecr2kxvs0wi" path="res://assets/splash/popup.png" id="7_splash"]
+[ext_resource type="Script" uid="uid://c45pplv3hocnj" path="res://scripts/intro_screen.gd" id="8_intro"]
+[ext_resource type="VideoStream" uid="uid://dswb6sp1nhb7a" path="res://assets/videos/obra_letra.ogv" id="9_video"]
 
-[node name="GameUI" type="CanvasLayer"]
+[node name="GameUI" type="CanvasLayer" unique_id=201877592]
 script = ExtResource("1_ui")
 
-[node name="InteractPrompt" type="Label" parent="."]
+[node name="InteractPrompt" type="Label" parent="." unique_id=1546238605]
 unique_name_in_owner = true
 anchors_preset = 7
 anchor_left = 0.5
@@ -27,47 +29,59 @@ theme_override_font_sizes/font_size = 14
 text = "Press E to talk"
 horizontal_alignment = 1
 
-[node name="IntroScreen" type="PanelContainer" parent="."]
+[node name="IntroScreen" type="Control" parent="." unique_id=498121881]
 unique_name_in_owner = true
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("8_intro")
 
-[node name="VBox" type="VBoxContainer" parent="IntroScreen"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="Title" type="Label" parent="IntroScreen/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Court of Whispers"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="IntroScreen/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Walk the court. Turn whispers into treason. Run court-of-whispers with: npm run dev"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="ApiBadge" type="Label" parent="IntroScreen/VBox"]
+[node name="BlackBG" type="ColorRect" parent="IntroScreen" unique_id=902066084]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.75, 0.7, 0.55, 1)
-text = "AI: connecting..."
-horizontal_alignment = 1
-autowrap_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
-[node name="BeginButton" type="Button" parent="IntroScreen/VBox"]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Enter the Court"
+[node name="VideoPlayer" type="VideoStreamPlayer" parent="IntroScreen" unique_id=1206395562]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("9_video")
+volume_db = -80.0
+expand = true
 
-[node name="EndScreen" type="PanelContainer" parent="."]
+[node name="IntroMusic" type="AudioStreamPlayer" parent="IntroScreen" unique_id=716539805]
+unique_name_in_owner = true
+
+[node name="SkipIntroButton" type="Button" parent="IntroScreen" unique_id=1847293011]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -152.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 52.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 14
+text = "skip-intro"
+
+[node name="EndScreen" type="PanelContainer" parent="." unique_id=366859656]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 15
@@ -76,114 +90,108 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="EndVBox" type="VBoxContainer" parent="EndScreen"]
+[node name="EndVBox" type="VBoxContainer" parent="EndScreen" unique_id=918674906]
 layout_mode = 2
 alignment = 1
 
-[node name="EndTitle" type="Label" parent="EndScreen/EndVBox"]
+[node name="EndTitle" type="Label" parent="EndScreen/EndVBox" unique_id=775633993]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Defeat"
 horizontal_alignment = 1
 
-[node name="EndMessage" type="Label" parent="EndScreen/EndVBox"]
+[node name="EndMessage" type="Label" parent="EndScreen/EndVBox" unique_id=550810356]
 unique_name_in_owner = true
 layout_mode = 2
 text = "..."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="RestartButton" type="Button" parent="EndScreen/EndVBox"]
+[node name="RestartButton" type="Button" parent="EndScreen/EndVBox" unique_id=1652444495]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Play Again"
 
-[node name="GameHUD" type="PanelContainer" parent="."]
+[node name="GameHUD" type="PanelContainer" parent="." unique_id=1903190885]
 unique_name_in_owner = true
 visible = false
 offset_right = 280.0
 offset_bottom = 320.0
 script = ExtResource("3_hud")
 
-[node name="HUDMargin" type="MarginContainer" parent="GameHUD"]
+[node name="HUDMargin" type="MarginContainer" parent="GameHUD" unique_id=1906493399]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="HUDVBox" type="VBoxContainer" parent="GameHUD/HUDMargin"]
+[node name="HUDVBox" type="VBoxContainer" parent="GameHUD/HUDMargin" unique_id=1826707754]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="DayLabel" type="Label" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="DayLabel" type="Label" parent="GameHUD/HUDMargin/HUDVBox" unique_id=47412704]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Day 1 / 5"
 
-[node name="TurnsLabel" type="Label" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="TurnsLabel" type="Label" parent="GameHUD/HUDMargin/HUDVBox" unique_id=994344813]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Turns: 5"
 
-[node name="ProofBar" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="ProofBar" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox" unique_id=954224499]
 unique_name_in_owner = true
 layout_mode = 2
-max_value = 100.0
 show_percentage = false
 
-[node name="ProofLbl" type="Label" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="ProofLbl" type="Label" parent="GameHUD/HUDMargin/HUDVBox" unique_id=1153819502]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "Proof (Bishop)"
 
-[node name="SuspicionBar" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="SuspicionBar" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox" unique_id=326329217]
 unique_name_in_owner = true
 layout_mode = 2
-max_value = 100.0
 show_percentage = false
 
-[node name="SuspLbl" type="Label" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="SuspLbl" type="Label" parent="GameHUD/HUDMargin/HUDVBox" unique_id=246941005]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "Suspicion"
 
-[node name="CommanderTrust" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="CommanderTrust" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox" unique_id=562100067]
 unique_name_in_owner = true
 layout_mode = 2
-max_value = 100.0
 value = 30.0
 show_percentage = false
 
-[node name="CitizenTrust" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="CitizenTrust" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox" unique_id=1744734838]
 unique_name_in_owner = true
 layout_mode = 2
-max_value = 100.0
 value = 30.0
 show_percentage = false
 
-[node name="PriestTrust" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="PriestTrust" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox" unique_id=1126782639]
 unique_name_in_owner = true
 layout_mode = 2
-max_value = 100.0
 value = 30.0
 show_percentage = false
 
-[node name="PriestFear" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="PriestFear" type="ProgressBar" parent="GameHUD/HUDMargin/HUDVBox" unique_id=688401895]
 unique_name_in_owner = true
 layout_mode = 2
-max_value = 100.0
 show_percentage = false
 
-[node name="QuestLabel" type="Label" parent="GameHUD/HUDMargin/HUDVBox"]
+[node name="QuestLabel" type="Label" parent="GameHUD/HUDMargin/HUDVBox" unique_id=1861313587]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "Quests"
 autowrap_mode = 2
 
-[node name="DialogueController" type="Control" parent="."]
+[node name="DialogueController" type="Control" parent="." unique_id=1794002289]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -193,25 +201,15 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_dlg")
 
-[node name="JrpgDialogueBox" parent="DialogueController" instance=ExtResource("5_jrpg")]
+[node name="JrpgDialogueBox" parent="DialogueController" unique_id=400352865 instance=ExtResource("5_jrpg")]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
-[node name="PlayerInputModal" parent="DialogueController" instance=ExtResource("6_input")]
+[node name="PlayerInputModal" parent="DialogueController" unique_id=1985600425 instance=ExtResource("6_input")]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
-[node name="NightModal" type="PanelContainer" parent="."]
+[node name="NightModal" type="PanelContainer" parent="." unique_id=427982924]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 8
@@ -226,21 +224,21 @@ offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="NightVBox" type="VBoxContainer" parent="NightModal"]
+[node name="NightVBox" type="VBoxContainer" parent="NightModal" unique_id=1078863159]
 layout_mode = 2
 
-[node name="NightLog" type="RichTextLabel" parent="NightModal/NightVBox"]
+[node name="NightLog" type="RichTextLabel" parent="NightModal/NightVBox" unique_id=295001970]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
 
-[node name="NightCloseButton" type="Button" parent="NightModal/NightVBox"]
+[node name="NightCloseButton" type="Button" parent="NightModal/NightVBox" unique_id=2069785940]
 layout_mode = 2
 text = "Dawn breaks"
 
-[node name="TouchLayer" type="Control" parent="."]
+[node name="TouchLayer" type="Control" parent="." unique_id=834658540]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -250,23 +248,23 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("4_touch")
 
-[node name="JoystickZone" type="Control" parent="TouchLayer"]
+[node name="JoystickZone" type="Control" parent="TouchLayer" unique_id=398117967]
 unique_name_in_owner = true
-anchors_preset = 2
+anchors_preset = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -140.0
 offset_right = 140.0
 grow_vertical = 0
 
-[node name="JoystickBase" type="Panel" parent="TouchLayer/JoystickZone"]
+[node name="JoystickBase" type="Panel" parent="TouchLayer/JoystickZone" unique_id=656112233]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 112.0
 offset_bottom = 112.0
 
-[node name="JoystickKnob" type="Panel" parent="TouchLayer/JoystickZone/JoystickBase"]
+[node name="JoystickKnob" type="Panel" parent="TouchLayer/JoystickZone/JoystickBase" unique_id=1831739541]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 32.0
@@ -274,9 +272,9 @@ offset_top = 32.0
 offset_right = 64.0
 offset_bottom = 64.0
 
-[node name="TalkTouchButton" type="Button" parent="TouchLayer"]
+[node name="TalkTouchButton" type="Button" parent="TouchLayer" unique_id=1303046856]
 unique_name_in_owner = true
-anchors_preset = 3
+layout_mode = 0
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -289,11 +287,7 @@ grow_horizontal = 0
 grow_vertical = 0
 text = "Talk"
 
-[connection signal="pressed" from="IntroScreen/VBox/BeginButton" to="." method="_on_begin_pressed"]
-[connection signal="pressed" from="EndScreen/EndVBox/RestartButton" to="." method="_on_restart_pressed"]
-[connection signal="pressed" from="NightModal/NightVBox/NightCloseButton" to="." method="_on_night_close_pressed"]
-
-[node name="DailyPopup" type="ColorRect" parent="."]
+[node name="DailyPopup" type="ColorRect" parent="." unique_id=1739946495]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 15
@@ -303,7 +297,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.784314)
 
-[node name="MarginContainer" type="MarginContainer" parent="DailyPopup"]
+[node name="MarginContainer" type="MarginContainer" parent="DailyPopup" unique_id=1134214024]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -315,18 +309,18 @@ theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 64
 theme_override_constants/margin_bottom = 64
 
-[node name="PopupAspect" type="AspectRatioContainer" parent="DailyPopup/MarginContainer"]
+[node name="PopupAspect" type="AspectRatioContainer" parent="DailyPopup/MarginContainer" unique_id=720160054]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PopupTexture" type="TextureRect" parent="DailyPopup/MarginContainer/PopupAspect"]
+[node name="PopupTexture" type="TextureRect" parent="DailyPopup/MarginContainer/PopupAspect" unique_id=700883291]
 unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("7_splash")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="DailyCloseButton" type="Button" parent="DailyPopup/MarginContainer/PopupAspect/PopupTexture"]
+[node name="DailyCloseButton" type="Button" parent="DailyPopup/MarginContainer/PopupAspect/PopupTexture" unique_id=143500913]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -338,4 +332,6 @@ offset_bottom = 24.0
 grow_horizontal = 0
 text = "X"
 
+[connection signal="pressed" from="EndScreen/EndVBox/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="NightModal/NightVBox/NightCloseButton" to="." method="_on_night_close_pressed"]
 [connection signal="pressed" from="DailyPopup/MarginContainer/PopupAspect/PopupTexture/DailyCloseButton" to="." method="_on_daily_close_pressed"]
