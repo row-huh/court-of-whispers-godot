@@ -6,11 +6,14 @@
 [ext_resource type="Script" uid="uid://bgym0segijyec" path="res://scripts/touch_controls.gd" id="4_touch"]
 [ext_resource type="PackedScene" uid="uid://cwk4jlbrk2q4k" path="res://scenes/ui/jrpg_dialogue_box.tscn" id="5_jrpg"]
 [ext_resource type="PackedScene" uid="uid://dngqxruh16bee" path="res://scenes/ui/player_input_modal.tscn" id="6_input"]
-[ext_resource type="Texture2D" uid="uid://mecr2kxvs0wi" path="res://assets/splash/popup.png" id="7_splash"]
 [ext_resource type="Script" uid="uid://c45pplv3hocnj" path="res://scripts/intro_screen.gd" id="8_intro"]
 [ext_resource type="VideoStream" uid="uid://dswb6sp1nhb7a" path="res://assets/videos/obra_letra.ogv" id="9_video"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_book_frame"]
+content_margin_left = 20.0
+content_margin_top = 16.0
+content_margin_right = 20.0
+content_margin_bottom = 16.0
 bg_color = Color(0.1, 0.08, 0.125, 0.96)
 border_width_left = 4
 border_width_top = 4
@@ -21,24 +24,8 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-content_margin_left = 20.0
-content_margin_top = 16.0
-content_margin_right = 20.0
-content_margin_bottom = 16.0
-shadow_size = 12
 shadow_color = Color(0, 0, 0, 0.5)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner_frame"]
-draw_center = false
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.75, 0.7, 0.55, 0.6)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+shadow_size = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrow_normal"]
 bg_color = Color(0.15, 0.12, 0.18, 0.9)
@@ -63,6 +50,18 @@ corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner_frame"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.7, 0.55, 0.6)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_normal"]
 bg_color = Color(0.1, 0.08, 0.125, 1)
@@ -115,7 +114,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 script = ExtResource("8_intro")
 
 [node name="BlackBG" type="ColorRect" parent="IntroScreen" unique_id=902066084]
@@ -422,11 +420,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 80)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_hover_color = Color(1, 0.98, 0.9, 1)
 theme_override_colors/font_color = Color(0.91, 0.84, 0.72, 1)
+theme_override_colors/font_hover_color = Color(1, 0.98, 0.9, 1)
 theme_override_font_sizes/font_size = 22
-theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_arrow_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_hover")
 text = "<"
 
 [node name="ImageFrame" type="PanelContainer" parent="DailyPopup/MarginContainer/CenterContainer/BookFrame/BookVBox/ContentHBox" unique_id=20210209]
@@ -446,11 +444,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 80)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_hover_color = Color(1, 0.98, 0.9, 1)
 theme_override_colors/font_color = Color(0.91, 0.84, 0.72, 1)
+theme_override_colors/font_hover_color = Color(1, 0.98, 0.9, 1)
 theme_override_font_sizes/font_size = 22
-theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_arrow_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_hover")
 text = ">"
 
 [node name="PageIndicator" type="Label" parent="DailyPopup/MarginContainer/CenterContainer/BookFrame/BookVBox" unique_id=20210211]
@@ -467,13 +465,12 @@ custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
-theme_override_colors/font_hover_color = Color(1, 0.9, 0.9, 1)
 theme_override_colors/font_color = Color(0.91, 0.84, 0.72, 1)
+theme_override_colors/font_hover_color = Color(1, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 20
-theme_override_styles/hover = SubResource("StyleBoxFlat_close_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_close_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_close_hover")
 text = "×"
 
 [connection signal="pressed" from="EndScreen/EndVBox/RestartButton" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="NightModal/NightVBox/NightCloseButton" to="." method="_on_night_close_pressed"]
-

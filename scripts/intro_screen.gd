@@ -70,10 +70,6 @@ func _start_playback() -> void:
 	music_player.stop()
 	music_player.volume_db = 0.0
 	video_player.play()
-
-	await get_tree().create_timer(1.0).timeout
-	if my_id != _seq_id or not _active:
-		return
 	music_player.play()
 
 
