@@ -1,11 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://c8npcpriest"]
+[gd_scene format=3 uid="uid://c8npcpriest"]
 
 [ext_resource type="PackedScene" uid="uid://c8npcagent01" path="res://scenes/npc/npc_agent.tscn" id="1_base"]
-[ext_resource type="SpriteFrames" path="res://scenes/npc/sprite_frames/priest_frames.tres" id="2_frames"]
+[ext_resource type="SpriteFrames" uid="uid://csbu1rw78ttne" path="res://scenes/npc/sprite_frames/priest_frames.tres" id="2_frames"]
 
-[node name="NpcAgent" instance=ExtResource("1_base")]
+[node name="NpcAgent" unique_id=1964482851 instance=ExtResource("1_base")]
 agent_id = "priest"
 
-[node name="AnimatedSprite2D" parent="." index="0"]
+[node name="AnimatedSprite2D" parent="." index="0" unique_id=117819378]
 sprite_frames = ExtResource("2_frames")
 animation = &"idle_down"

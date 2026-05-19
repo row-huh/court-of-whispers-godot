@@ -88,6 +88,8 @@ func _on_continue_pressed() -> void:
 func _on_input_submitted(text: String) -> void:
 	if not GameManager.can_send_message():
 		return
+	if GameManager.turns_left == 1 and (GameManager.day == 1 or GameManager.day == 4):
+		GameManager.music_stop_requested.emit()
 	GameManager.append_user_message(text)
 	_state = State.WAITING_AI
 	jrpg_box.show_thinking()

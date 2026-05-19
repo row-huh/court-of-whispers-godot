@@ -18,7 +18,10 @@ func _ready() -> void:
 	video_player.finished.connect(_on_video_finished)
 	skip_button.pressed.connect(_on_skip_pressed)
 
-	music_player.stream = load("res://assets/music/without_me_medieval.mp3")
+	var intro_stream = load("res://assets/music/without_me_medieval.mp3")
+	if intro_stream and "loop" in intro_stream:
+		intro_stream.loop = true
+	music_player.stream = intro_stream
 
 	GameManager.state_changed.connect(_on_state_changed)
 

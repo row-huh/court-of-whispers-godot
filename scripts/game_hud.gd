@@ -153,19 +153,22 @@ func _refresh() -> void:
 	var quests: Array[String] = []
 	var q1_done = GameManager.citizen_offered_blackmail
 	var q2_done = not GameManager.priest_spilled_dirt.is_empty()
-	var q3_done = GameManager.citizen_endorsed_commander
+	var q3_done = GameManager.citizen_accepted_dirt
+	var q4_done = GameManager.agents["commander"]["trust"] >= 80
+	var q5_done = GameManager.status == "won"
 
 	quests.append(_format_quest("Earn Mira's faith — she offers leverage on the priest", q1_done))
 	quests.append(_format_quest("Press Father Edran for palace dirt", q2_done))
 	quests.append(_format_quest("Bring the dirt back to Mira — she endorses you", q3_done))
-	quests.append(_format_quest("Convince the Commander to perform the coup", false))
+	quests.append(_format_quest("Use the dirt to turn Sir Alaric", q4_done))
+	quests.append(_format_quest("Convince the Commander to perform the coup", q5_done))
 
 	quest_label.text = "[b][color=#d4a648]Your Path[/color][/b]\n\n" + "\n\n".join(quests)
 
 func _format_quest(text: String, is_done: bool) -> String:
 	if is_done:
-		return "  [color=#d4a648]● %s[/color]" % text
-	return "  [color=#6b5f52]○ %s[/color]" % text
+		return "  [color=#6b5f52][s]● %s[/s][/color]" % text
+	return "  [color=#d4a648]○ %s[/color]" % text
 
 func _pulse_day_label() -> void:
 	var tween = create_tween()

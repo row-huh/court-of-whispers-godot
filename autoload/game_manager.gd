@@ -3,6 +3,7 @@ extends Node
 signal state_changed
 signal dialogue_requested(agent_id: String)
 signal dialogue_closed
+signal music_stop_requested
 
 const AGENT_IDS: Array[String] = ["commander", "citizen", "priest", "bishop"]
 const TRUST_AGENTS: Array[String] = ["commander", "citizen", "priest"]
@@ -16,7 +17,7 @@ var proof: int = 0
 var suspicion: int = 0
 var agents: Dictionary = {
 	"commander": {"trust": 30, "fear": 0},
-	"citizen": {"trust": 30, "fear": 0},
+	"citizen": {"trust": 50, "fear": 0},
 	"priest": {"trust": 30, "fear": 0},
 }
 var citizen_offered_blackmail: bool = false
@@ -78,7 +79,7 @@ func reset_state() -> void:
 	suspicion = 0
 	agents = {
 		"commander": {"trust": 30, "fear": 0},
-		"citizen": {"trust": 30, "fear": 0},
+		"citizen": {"trust": 50, "fear": 0},
 		"priest": {"trust": 30, "fear": 0},
 	}
 	citizen_offered_blackmail = false
@@ -142,6 +143,8 @@ func open_dialogue(agent_id: String) -> void:
 
 
 func close_dialogue() -> void:
+	if not dialogue_open:
+		return
 	dialogue_open = false
 	dialogue_closed.emit()
 	
@@ -220,11 +223,15 @@ func apply_delta(agent: String, d: Dictionary) -> void:
 			"evidence": str(d["proof_evidence"]),
 		})
 
-	if agent != "bishop" and d.get("gossip_score", 0) > 0:
+	if d.has("suspicionDelta") or d.has("suspicion_delta"):
+		var s_delta = int(d.get("suspicionDelta", d.get("suspicion_delta", 0)))
+		suspicion = clamp_value(suspicion + s_delta)
+	elif agent != "bishop" and d.get("gossip_score", 0) > 0:
 		suspicion = clamp_value(suspicion + int(d["gossip_score"]))
 
 	var meta := {
 		"gossip_score": d.get("gossip_score", 0),
+		"suspicion_delta": d.get("suspicionDelta", d.get("suspicion_delta", 0)),
 		"trust_delta": d.get("trust_delta") if agent != "bishop" else null,
 		"fear_delta": d.get("fear_delta") if agent == "priest" else null,
 		"spilled": d.get("spill_dirt", []),
@@ -260,23 +267,11 @@ func _check_end_conditions(agent: String, d: Dictionary) -> void:
 			return
 
 	if agent == "commander" and d.get("perform_coup", false):
-		if (
-			int(agents["commander"]["trust"]) >= 80
-			and citizen_endorsed_commander
-			and priest_spilled_dirt.size() > 0
-		):
-			status = "won"
-			ending_message = (
-				"Sir Alaric draws his sword and turns it on the king. "
-				+ "The throne is yours, false heir. The artistry is complete."
-			)
-		else:
-			suspicion = clamp_value(suspicion + 12)
-			if suspicion >= 100:
-				status = "lost"
-				ending_message = (
-					"The Commander balked. Whispers of your asking reached the Bishop within the hour."
-				)
+		status = "won"
+		ending_message = (
+			"Sir Alaric draws his sword and turns it on the king. "
+			+ "The throne is yours, false heir. The artistry is complete."
+		)
 
 	if agent == "bishop" and d.get("inform_king", false):
 		status = "lost"
