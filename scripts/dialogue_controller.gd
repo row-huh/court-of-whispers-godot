@@ -88,6 +88,8 @@ func _on_continue_pressed() -> void:
 func _on_input_submitted(text: String) -> void:
 	if not GameManager.can_send_message():
 		return
+	if GameManager.turns_left == 1 and (GameManager.day == 1 or GameManager.day == 4):
+		GameManager.music_stop_requested.emit()
 	GameManager.append_user_message(text)
 	_state = State.WAITING_AI
 	jrpg_box.show_thinking()
@@ -123,6 +125,10 @@ func _on_agent_delta_ready(delta: Dictionary) -> void:
 	# apply_delta appends assistant message; show line after
 	GameManager.apply_delta(agent_id, delta)
 	_show_assistant_line(agent_id, speaker, reply, mood)
+	
+	var toast_manager = get_node_or_null("%ToastManager")
+	if toast_manager and toast_manager.has_method("show_toasts"):
+		toast_manager.show_toasts(delta, agent_id)
 
 
 func on_agent_error(message: String) -> void:

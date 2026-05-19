@@ -18,7 +18,10 @@ func _ready() -> void:
 	video_player.finished.connect(_on_video_finished)
 	skip_button.pressed.connect(_on_skip_pressed)
 
-	music_player.stream = load("res://assets/music/without_me_medieval.mp3")
+	var intro_stream = load("res://assets/music/without_me_medieval.mp3")
+	if intro_stream and "loop" in intro_stream:
+		intro_stream.loop = true
+	music_player.stream = intro_stream
 
 	GameManager.state_changed.connect(_on_state_changed)
 
@@ -70,10 +73,6 @@ func _start_playback() -> void:
 	music_player.stop()
 	music_player.volume_db = 0.0
 	video_player.play()
-
-	await get_tree().create_timer(1.0).timeout
-	if my_id != _seq_id or not _active:
-		return
 	music_player.play()
 
 

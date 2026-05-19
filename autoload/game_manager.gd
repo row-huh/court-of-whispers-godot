@@ -3,6 +3,7 @@ extends Node
 signal state_changed
 signal dialogue_requested(agent_id: String)
 signal dialogue_closed
+signal music_stop_requested
 
 const AGENT_IDS: Array[String] = ["commander", "citizen", "priest", "bishop"]
 const TRUST_AGENTS: Array[String] = ["commander", "citizen", "priest"]
@@ -16,7 +17,7 @@ var proof: int = 0
 var suspicion: int = 0
 var agents: Dictionary = {
 	"commander": {"trust": 30, "fear": 0},
-	"citizen": {"trust": 30, "fear": 0},
+	"citizen": {"trust": 50, "fear": 0},
 	"priest": {"trust": 30, "fear": 0},
 }
 var citizen_offered_blackmail: bool = false
@@ -32,12 +33,14 @@ var conversations: Dictionary = {
 }
 var night_log: Array = []
 var pending_night: bool = false
+var night_phase_started: bool = false
 var status: String = "intro"
 var ending_message: String = ""
 var active_agent: String = "commander"
 var dialogue_open: bool = false
 var request_pending: bool = false
 
+var _day_start_snapshot: Dictionary = {}
 
 func _ready() -> void:
 	_load_agents_meta()
@@ -63,6 +66,10 @@ func begin_game() -> void:
 	reset_state()
 	status = "playing"
 	_emit()
+	if use_http_ai:
+		var http := get_node_or_null("/root/HttpAgentClient")
+		if http and http.has_method("push_state"):
+			http.push_state()
 
 
 func reset_state() -> void:
@@ -72,7 +79,7 @@ func reset_state() -> void:
 	suspicion = 0
 	agents = {
 		"commander": {"trust": 30, "fear": 0},
-		"citizen": {"trust": 30, "fear": 0},
+		"citizen": {"trust": 50, "fear": 0},
 		"priest": {"trust": 30, "fear": 0},
 	}
 	citizen_offered_blackmail = false
@@ -83,11 +90,37 @@ func reset_state() -> void:
 	conversations = {"commander": [], "citizen": [], "priest": [], "bishop": []}
 	night_log = []
 	pending_night = false
+	night_phase_started = false
 	status = "intro"
 	ending_message = ""
 	active_agent = "commander"
 	dialogue_open = false
 	request_pending = false
+	_take_day_snapshot()
+
+
+func _take_day_snapshot() -> void:
+	_day_start_snapshot = {
+		"commander_trust": int(agents["commander"]["trust"]),
+		"citizen_trust": int(agents["citizen"]["trust"]),
+		"priest_trust": int(agents["priest"]["trust"]),
+		"priest_fear": int(agents["priest"]["fear"]),
+		"proof": proof,
+		"suspicion": suspicion
+	}
+
+
+func get_day_deltas() -> Dictionary:
+	if _day_start_snapshot.is_empty():
+		return {}
+	return {
+		"commander_trust": int(agents["commander"]["trust"]) - _day_start_snapshot["commander_trust"],
+		"citizen_trust": int(agents["citizen"]["trust"]) - _day_start_snapshot["citizen_trust"],
+		"priest_trust": int(agents["priest"]["trust"]) - _day_start_snapshot["priest_trust"],
+		"priest_fear": int(agents["priest"]["fear"]) - _day_start_snapshot["priest_fear"],
+		"proof": proof - _day_start_snapshot["proof"],
+		"suspicion": suspicion - _day_start_snapshot["suspicion"]
+	}
 
 
 func get_agent_name(agent_id: String) -> String:
@@ -110,8 +143,15 @@ func open_dialogue(agent_id: String) -> void:
 
 
 func close_dialogue() -> void:
+	if not dialogue_open:
+		return
 	dialogue_open = false
 	dialogue_closed.emit()
+	
+	if pending_night and status == "playing" and not night_phase_started:
+		night_phase_started = true
+		call_deferred("_run_night_phase")
+		
 	_emit()
 
 
@@ -183,11 +223,15 @@ func apply_delta(agent: String, d: Dictionary) -> void:
 			"evidence": str(d["proof_evidence"]),
 		})
 
-	if agent != "bishop" and d.get("gossip_score", 0) > 0:
+	if d.has("suspicionDelta") or d.has("suspicion_delta"):
+		var s_delta = int(d.get("suspicionDelta", d.get("suspicion_delta", 0)))
+		suspicion = clamp_value(suspicion + s_delta)
+	elif agent != "bishop" and d.get("gossip_score", 0) > 0:
 		suspicion = clamp_value(suspicion + int(d["gossip_score"]))
 
 	var meta := {
 		"gossip_score": d.get("gossip_score", 0),
+		"suspicion_delta": d.get("suspicionDelta", d.get("suspicion_delta", 0)),
 		"trust_delta": d.get("trust_delta") if agent != "bishop" else null,
 		"fear_delta": d.get("fear_delta") if agent == "priest" else null,
 		"spilled": d.get("spill_dirt", []),
@@ -198,12 +242,10 @@ func apply_delta(agent: String, d: Dictionary) -> void:
 	turns_left -= 1
 	if turns_left <= 0:
 		pending_night = true
+		night_phase_started = false
 
 	_check_end_conditions(agent, d)
 	_emit()
-
-	if pending_night and status == "playing":
-		call_deferred("_run_night_phase")
 
 
 func _check_end_conditions(agent: String, d: Dictionary) -> void:
@@ -225,23 +267,11 @@ func _check_end_conditions(agent: String, d: Dictionary) -> void:
 			return
 
 	if agent == "commander" and d.get("perform_coup", false):
-		if (
-			int(agents["commander"]["trust"]) >= 80
-			and citizen_endorsed_commander
-			and priest_spilled_dirt.size() > 0
-		):
-			status = "won"
-			ending_message = (
-				"Sir Alaric draws his sword and turns it on the king. "
-				+ "The throne is yours, false heir. The artistry is complete."
-			)
-		else:
-			suspicion = clamp_value(suspicion + 12)
-			if suspicion >= 100:
-				status = "lost"
-				ending_message = (
-					"The Commander balked. Whispers of your asking reached the Bishop within the hour."
-				)
+		status = "won"
+		ending_message = (
+			"Sir Alaric draws his sword and turns it on the king. "
+			+ "The throne is yours, false heir. The artistry is complete."
+		)
 
 	if agent == "bishop" and d.get("inform_king", false):
 		status = "lost"
@@ -312,10 +342,12 @@ func apply_night_exchanges(exchanges: Array) -> void:
 func close_night() -> void:
 	if status != "playing":
 		pending_night = false
+		night_phase_started = false
 		_emit()
 		return
 	if day >= 5:
 		pending_night = false
+		night_phase_started = false
 		status = "lost"
 		ending_message = (
 			"Five days, gone. The king holds his throne. "
@@ -323,9 +355,15 @@ func close_night() -> void:
 		)
 	else:
 		pending_night = false
+		night_phase_started = false
 		day += 1
 		turns_left = 5
+		_take_day_snapshot()
 	_emit()
+	if use_http_ai:
+		var http := get_node_or_null("/root/HttpAgentClient")
+		if http and http.has_method("push_state"):
+			http.push_state()
 
 
 func _run_night_phase() -> void:
