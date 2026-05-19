@@ -32,12 +32,14 @@ var conversations: Dictionary = {
 }
 var night_log: Array = []
 var pending_night: bool = false
+var night_phase_started: bool = false
 var status: String = "intro"
 var ending_message: String = ""
 var active_agent: String = "commander"
 var dialogue_open: bool = false
 var request_pending: bool = false
 
+var _day_start_snapshot: Dictionary = {}
 
 func _ready() -> void:
 	_load_agents_meta()
@@ -83,11 +85,37 @@ func reset_state() -> void:
 	conversations = {"commander": [], "citizen": [], "priest": [], "bishop": []}
 	night_log = []
 	pending_night = false
+	night_phase_started = false
 	status = "intro"
 	ending_message = ""
 	active_agent = "commander"
 	dialogue_open = false
 	request_pending = false
+	_take_day_snapshot()
+
+
+func _take_day_snapshot() -> void:
+	_day_start_snapshot = {
+		"commander_trust": int(agents["commander"]["trust"]),
+		"citizen_trust": int(agents["citizen"]["trust"]),
+		"priest_trust": int(agents["priest"]["trust"]),
+		"priest_fear": int(agents["priest"]["fear"]),
+		"proof": proof,
+		"suspicion": suspicion
+	}
+
+
+func get_day_deltas() -> Dictionary:
+	if _day_start_snapshot.is_empty():
+		return {}
+	return {
+		"commander_trust": int(agents["commander"]["trust"]) - _day_start_snapshot["commander_trust"],
+		"citizen_trust": int(agents["citizen"]["trust"]) - _day_start_snapshot["citizen_trust"],
+		"priest_trust": int(agents["priest"]["trust"]) - _day_start_snapshot["priest_trust"],
+		"priest_fear": int(agents["priest"]["fear"]) - _day_start_snapshot["priest_fear"],
+		"proof": proof - _day_start_snapshot["proof"],
+		"suspicion": suspicion - _day_start_snapshot["suspicion"]
+	}
 
 
 func get_agent_name(agent_id: String) -> String:
@@ -112,6 +140,11 @@ func open_dialogue(agent_id: String) -> void:
 func close_dialogue() -> void:
 	dialogue_open = false
 	dialogue_closed.emit()
+	
+	if pending_night and status == "playing" and not night_phase_started:
+		night_phase_started = true
+		call_deferred("_run_night_phase")
+		
 	_emit()
 
 
@@ -198,12 +231,10 @@ func apply_delta(agent: String, d: Dictionary) -> void:
 	turns_left -= 1
 	if turns_left <= 0:
 		pending_night = true
+		night_phase_started = false
 
 	_check_end_conditions(agent, d)
 	_emit()
-
-	if pending_night and status == "playing":
-		call_deferred("_run_night_phase")
 
 
 func _check_end_conditions(agent: String, d: Dictionary) -> void:
@@ -312,10 +343,12 @@ func apply_night_exchanges(exchanges: Array) -> void:
 func close_night() -> void:
 	if status != "playing":
 		pending_night = false
+		night_phase_started = false
 		_emit()
 		return
 	if day >= 5:
 		pending_night = false
+		night_phase_started = false
 		status = "lost"
 		ending_message = (
 			"Five days, gone. The king holds his throne. "
@@ -323,8 +356,10 @@ func close_night() -> void:
 		)
 	else:
 		pending_night = false
+		night_phase_started = false
 		day += 1
 		turns_left = 5
+		_take_day_snapshot()
 	_emit()
 
 

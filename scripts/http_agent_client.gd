@@ -8,12 +8,15 @@ const DEFAULT_BASE_URL := "http://127.0.0.1:8080"
 var base_url: String = DEFAULT_BASE_URL
 var use_http_ai: bool = true
 var _http: HTTPRequest
+var _http_state: HTTPRequest  # dedicated node for fire-and-forget state pushes
 
 
 func _ready() -> void:
 	_http = HTTPRequest.new()
 	add_child(_http)
 	_http.request_completed.connect(_on_request_completed)
+	_http_state = HTTPRequest.new()
+	add_child(_http_state)
 	_load_config()
 
 
@@ -37,6 +40,31 @@ func request_agent(agent_id: String, user_message: String) -> void:
 		"ctx": _build_ctx(),
 	}
 	_post("/api/agent", body)
+
+
+func push_state() -> void:
+	# Fire-and-forget: push the full game state to the backend after every change.
+	var body := {
+		"day": GameManager.day,
+		"turnsLeft": GameManager.turns_left,
+		"proof": GameManager.proof,
+		"suspicion": GameManager.suspicion,
+		"trust": {
+			"commander": GameManager.agents["commander"]["trust"],
+			"citizen": GameManager.agents["citizen"]["trust"],
+			"priest": GameManager.agents["priest"]["trust"],
+		},
+		"priestFear": GameManager.agents["priest"]["fear"],
+		"citizenOfferedBlackmail": GameManager.citizen_offered_blackmail,
+		"citizenAcceptedDirt": GameManager.citizen_accepted_dirt,
+		"citizenEndorsedCommander": GameManager.citizen_endorsed_commander,
+		"priestSpilledDirt": GameManager.priest_spilled_dirt,
+		"status": GameManager.status,
+	}
+	var url := base_url + "/api/state"
+	var json := JSON.stringify(body)
+	var headers := PackedStringArray(["Content-Type: application/json"])
+	_http_state.request(url, headers, HTTPClient.METHOD_POST, json)
 
 
 func request_night() -> void:
@@ -160,12 +188,14 @@ func _on_request_completed(
 			GameManager.request_pending = false
 			GameManager.apply_delta(_pending_agent, delta)
 		agent_request_finished.emit()
+		call_deferred("push_state")
 	elif _pending_kind == "night":
 		var exchanges: Array = []
 		if parsed is Dictionary:
 			exchanges = parsed.get("exchanges", [])
 		GameManager.apply_night_exchanges(_normalize_night_exchanges(exchanges))
 		night_request_finished.emit()
+		call_deferred("push_state")
 
 	_pending_kind = ""
 

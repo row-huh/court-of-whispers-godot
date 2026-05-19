@@ -123,6 +123,10 @@ func _on_agent_delta_ready(delta: Dictionary) -> void:
 	# apply_delta appends assistant message; show line after
 	GameManager.apply_delta(agent_id, delta)
 	_show_assistant_line(agent_id, speaker, reply, mood)
+	
+	var toast_manager = get_node_or_null("%ToastManager")
+	if toast_manager and toast_manager.has_method("show_toasts"):
+		toast_manager.show_toasts(delta, agent_id)
 
 
 func on_agent_error(message: String) -> void:

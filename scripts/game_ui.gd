@@ -13,6 +13,7 @@ extends CanvasLayer
 @onready var prev_btn: Button = %PrevButton
 @onready var next_btn: Button = %NextButton
 @onready var page_indicator: Label = %PageIndicator
+@onready var drawer_btn: Button = %DrawerToggleButton
 
 const POPUP1_PATH = "res://assets/splash/popup1.png"
 const POPUP2_PATH = "res://assets/splash/popup2.png"
@@ -22,6 +23,7 @@ var _player: CharacterBody2D = null
 var _last_seen_day: int = 0
 var _popup_textures: Array[Texture2D] = []
 var _current_popup_idx: int = 0
+var _drawer_open: bool = false
 
 
 func _ready() -> void:
@@ -41,11 +43,14 @@ func _ready() -> void:
 	daily_close_btn.pressed.connect(_on_daily_close_pressed)
 	prev_btn.pressed.connect(_on_prev_pressed)
 	next_btn.pressed.connect(_on_next_pressed)
+	drawer_btn.pressed.connect(_on_drawer_toggle)
 
 	talk_touch_btn.pressed.connect(_on_touch_talk)
 	GameManager.state_changed.connect(_on_state_changed)
 	call_deferred("_bind_player")
 	call_deferred("_update_api_badge")
+	
+	drawer_btn.visible = false
 
 
 func _bind_player() -> void:
@@ -80,8 +85,21 @@ func _on_touch_talk() -> void:
 func _on_state_changed() -> void:
 	intro_screen.visible = GameManager.status == "intro"
 	end_screen.visible = GameManager.status == "won" or GameManager.status == "lost"
-	hud.visible = GameManager.status == "playing"
-	night_modal.visible = GameManager.pending_night and GameManager.status == "playing"
+	
+	var playing = GameManager.status == "playing"
+	hud.visible = playing
+	drawer_btn.visible = playing
+	if not playing:
+		_drawer_open = false
+		hud.position.x = -350.0
+	elif GameManager.day == 1 and not _drawer_open and hud.position.x < -100:
+		_drawer_open = true
+		hud.position.x = 16.0
+		hud._refresh()
+		if hud.has_method("start_polling"):
+			hud.start_polling()
+		
+	night_modal.visible = GameManager.pending_night and playing and not GameManager.dialogue_open
 
 	if GameManager.status == "intro":
 		_last_seen_day = 0
@@ -121,18 +139,56 @@ func _populate_night_modal() -> void:
 	if GameManager.request_pending:
 		list.text = "[center][i]The court whispers...[/i][/center]"
 		return
+	
 	var bb := "[center][b]Night %d — Whispers in the dark[/b][/center]\n\n" % GameManager.day
-	for e in GameManager.get_todays_night():
-		bb += "[b]%s → %s[/b]\n" % [
-			GameManager.get_agent_name(e.get("from", "")),
-			GameManager.get_agent_name(e.get("to", "")),
-		]
-		bb += "%s\n\"%s\"\n\n" % [e.get("line", ""), e.get("reply", "")]
-	if bb.ends_with("\n\n"):
-		pass
-	elif GameManager.night_log.is_empty():
-		bb += "The court sleeps. Nothing stirs."
+	
+	# SECTION 1: Whispers
+	var todays_night = GameManager.get_todays_night()
+	if todays_night.is_empty():
+		bb += "  [color=#a0a0a0][i]The court sleeps. Nothing stirs.[/i][/color]\n\n"
+	else:
+		for e in todays_night:
+			bb += "  [b]%s[/b] → [b]%s[/b]\n" % [
+				GameManager.get_agent_name(e.get("from", "")),
+				GameManager.get_agent_name(e.get("to", "")),
+			]
+			bb += "  [color=#cccccc]\"%s\"[/color]\n\n" % e.get("reply", "")
+
+	bb += "[center][b]— What Shifted Today —[/b][/center]\n\n"
+
+	# SECTION 2: Deltas
+	var deltas = GameManager.get_day_deltas()
+	if deltas.is_empty():
+		bb += "  [color=#a0a0a0][i]The status quo remains.[/i][/color]"
+	else:
+		bb += _format_delta_row("Sir Alaric's Trust", GameManager.agents["commander"]["trust"], deltas.get("commander_trust", 0))
+		bb += _format_delta_row("Mira's Trust", GameManager.agents["citizen"]["trust"], deltas.get("citizen_trust", 0))
+		bb += _format_delta_row("Father Edran's Trust", GameManager.agents["priest"]["trust"], deltas.get("priest_trust", 0))
+		bb += _format_delta_row("Father Edran's Fear", GameManager.agents["priest"]["fear"], deltas.get("priest_fear", 0))
+		bb += _format_delta_row("Bishop's Proof", GameManager.proof, deltas.get("proof", 0))
+		bb += _format_delta_row("Suspicion", GameManager.suspicion, deltas.get("suspicion", 0))
+
 	list.text = bb
+
+
+func _format_delta_row(label: String, current: int, delta: int) -> String:
+	var previous = current - delta
+	var d_str = ""
+	var d_color = "#8a7b6b" # neutral stone
+	
+	if delta > 0:
+		d_str = "[+%d]" % delta
+		d_color = "#d4a648" if not label in ["Suspicion", "Bishop's Proof", "Father Edran's Fear"] else "#c0392b"
+	elif delta < 0:
+		d_str = "[%d]" % delta
+		d_color = "#c0392b" if not label in ["Suspicion", "Bishop's Proof", "Father Edran's Fear"] else "#d4a648"
+	else:
+		d_str = "[±0]"
+	
+	# Special case: Fear going up is mostly good/neutral, Suspicion/Proof going up is bad.
+	# We colored positive suspicion/proof as red. Positive trust as gold. Negative trust as red.
+	
+	return "  [color=#a0a0a0]%-22s[/color] [color=#e0e0e0]%2d[/color] → [color=#ffffff]%2d[/color]   [color=%s]%s[/color]\n" % [label, previous, current, d_color, d_str]
 
 
 func _on_restart_pressed() -> void:
@@ -179,3 +235,18 @@ func _transition_to_page(idx: int) -> void:
 	)
 	# Fade in new texture
 	tween.tween_property(popup_texture, "modulate:a", 1.0, 0.15)
+
+
+func _on_drawer_toggle() -> void:
+	_drawer_open = not _drawer_open
+	var target_x = 16.0 if _drawer_open else -350.0
+	var tween = create_tween()
+	tween.tween_property(hud, "position:x", target_x, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if _drawer_open:
+		if hud.has_method("_refresh"):
+			hud._refresh()
+		if hud.has_method("start_polling"):
+			hud.start_polling()
+	else:
+		if hud.has_method("stop_polling"):
+			hud.stop_polling()
