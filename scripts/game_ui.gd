@@ -24,6 +24,7 @@ var _last_seen_day: int = 0
 var _popup_textures: Array[Texture2D] = []
 var _current_popup_idx: int = 0
 var _drawer_open: bool = false
+var _blur_bg: ColorRect = null
 
 
 func _ready() -> void:
@@ -51,6 +52,47 @@ func _ready() -> void:
 	call_deferred("_update_api_badge")
 	
 	drawer_btn.visible = false
+
+	# Setup Blur Background
+	_blur_bg = ColorRect.new()
+	_blur_bg.name = "NightBlurBg"
+	_blur_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_blur_bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	_blur_bg.visible = false
+	
+	var shader = Shader.new()
+	shader.code = "shader_type canvas_item;\n" + \
+		"uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;\n" + \
+		"void fragment() {\n" + \
+		"    COLOR = textureLod(screen_texture, SCREEN_UV, 2.5);\n" + \
+		"    COLOR.rgb *= 0.5;\n" + \
+		"}"
+	var material = ShaderMaterial.new()
+	material.shader = shader
+	_blur_bg.material = material
+	
+	add_child(_blur_bg)
+	move_child(_blur_bg, night_modal.get_index())
+
+	# Setup NightModal Stylebox (similar to drawer)
+	var night_style := StyleBoxFlat.new()
+	night_style.bg_color = Color(0.12, 0.09, 0.08, 0.98)
+	night_style.border_width_left = 2
+	night_style.border_width_top = 2
+	night_style.border_width_right = 2
+	night_style.border_width_bottom = 2
+	night_style.border_color = Color(0.2, 0.15, 0.12, 1)
+	night_style.corner_radius_top_left = 8
+	night_style.corner_radius_top_right = 8
+	night_style.corner_radius_bottom_right = 8
+	night_style.corner_radius_bottom_left = 8
+	night_style.shadow_color = Color(0, 0, 0, 0.5)
+	night_style.shadow_size = 12
+	night_style.content_margin_left = 20
+	night_style.content_margin_top = 20
+	night_style.content_margin_right = 20
+	night_style.content_margin_bottom = 20
+	night_modal.add_theme_stylebox_override("panel", night_style)
 
 
 func _bind_player() -> void:
@@ -100,6 +142,8 @@ func _on_state_changed() -> void:
 			hud.start_polling()
 		
 	night_modal.visible = GameManager.pending_night and playing and not GameManager.dialogue_open
+	if _blur_bg:
+		_blur_bg.visible = night_modal.visible
 
 	if GameManager.status == "intro":
 		_last_seen_day = 0
