@@ -139,6 +139,8 @@ func _ready() -> void:
 		close_btn.add_theme_color_override("font_pressed_color", Color(0.7, 0.65, 0.6, 1))
 		close_btn.add_theme_color_override("font_disabled_color", Color(0.4, 0.35, 0.3, 1))
 
+	_on_state_changed()
+
 
 func _bind_player() -> void:
 	_player = get_tree().get_first_node_in_group("player") as CharacterBody2D
@@ -201,13 +203,16 @@ func _on_state_changed() -> void:
 			popup_texture.modulate.a = 1.0
 			page_indicator.text = "Page 1 of %d" % _popup_textures.size()
 		daily_popup.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	if end_screen.visible:
 		%EndTitle.text = "Victory" if GameManager.status == "won" else "Defeat"
 		%EndMessage.text = GameManager.ending_message
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	if night_modal.visible:
 		_populate_night_modal()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	_update_api_badge()
 

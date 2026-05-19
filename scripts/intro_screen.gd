@@ -26,6 +26,7 @@ func _ready() -> void:
 	GameManager.state_changed.connect(_on_state_changed)
 
 	if GameManager.status == "intro" and visible:
+		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 		_start_playback()
 
 
@@ -68,6 +69,7 @@ func _start_playback() -> void:
 	var my_id := _seq_id
 	_active = true
 	skip_button.visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 
 	video_player.stop()
 	music_player.stop()

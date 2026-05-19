@@ -37,6 +37,7 @@ func _on_dialogue_open(agent_id: String) -> void:
 	_agent_id = agent_id
 	_state = State.SHOWING_LINE
 	jrpg_box.show_box()
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 
 	var meta: Dictionary = GameManager.agents_meta.get(agent_id, {})
 	var speaker: String = meta.get("name", agent_id)
@@ -67,6 +68,7 @@ func _show_last_assistant_line(agent_id: String, speaker: String) -> void:
 
 func _show_assistant_line(agent_id: String, speaker: String, text: String, mood: String) -> void:
 	_state = State.SHOWING_LINE
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	jrpg_box.show_line(agent_id, speaker, text, mood, false)
 
 
@@ -92,6 +94,7 @@ func _on_input_submitted(text: String) -> void:
 		GameManager.music_stop_requested.emit()
 	GameManager.append_user_message(text)
 	_state = State.WAITING_AI
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	jrpg_box.show_thinking()
 
 	if GameManager.use_http_ai:
@@ -145,12 +148,14 @@ func _on_close() -> void:
 	jrpg_box.hide_box()
 	_state = State.IDLE
 	GameManager.close_dialogue()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
 func _on_dialogue_closed() -> void:
 	input_modal.close_modal()
 	jrpg_box.hide_box()
 	_state = State.IDLE
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
 func _on_state_changed() -> void:
