@@ -65,6 +65,10 @@ func begin_game() -> void:
 	reset_state()
 	status = "playing"
 	_emit()
+	if use_http_ai:
+		var http := get_node_or_null("/root/HttpAgentClient")
+		if http and http.has_method("push_state"):
+			http.push_state()
 
 
 func reset_state() -> void:
@@ -361,6 +365,10 @@ func close_night() -> void:
 		turns_left = 5
 		_take_day_snapshot()
 	_emit()
+	if use_http_ai:
+		var http := get_node_or_null("/root/HttpAgentClient")
+		if http and http.has_method("push_state"):
+			http.push_state()
 
 
 func _run_night_phase() -> void:
