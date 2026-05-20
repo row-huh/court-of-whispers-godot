@@ -139,6 +139,62 @@ func _ready() -> void:
 		close_btn.add_theme_color_override("font_pressed_color", Color(0.7, 0.65, 0.6, 1))
 		close_btn.add_theme_color_override("font_disabled_color", Color(0.4, 0.35, 0.3, 1))
 
+	# Setup TalkTouchButton Style
+	var talk_normal := StyleBoxFlat.new()
+	talk_normal.bg_color = Color(0.2, 0.15, 0.12, 0.9)
+	talk_normal.border_width_left = 2
+	talk_normal.border_width_top = 2
+	talk_normal.border_width_right = 2
+	talk_normal.border_width_bottom = 2
+	talk_normal.border_color = Color(0.83, 0.65, 0.28, 1.0)
+	talk_normal.corner_radius_top_left = 8
+	talk_normal.corner_radius_top_right = 8
+	talk_normal.corner_radius_bottom_right = 8
+	talk_normal.corner_radius_bottom_left = 8
+	talk_normal.content_margin_top = 8
+	talk_normal.content_margin_bottom = 8
+
+	var talk_hover := StyleBoxFlat.new()
+	talk_hover.bg_color = Color(0.83, 0.65, 0.28, 0.95)
+	talk_hover.border_width_left = 2
+	talk_hover.border_width_top = 2
+	talk_hover.border_width_right = 2
+	talk_hover.border_width_bottom = 2
+	talk_hover.border_color = Color(0.91, 0.84, 0.72, 1.0)
+	talk_hover.corner_radius_top_left = 8
+	talk_hover.corner_radius_top_right = 8
+	talk_hover.corner_radius_bottom_right = 8
+	talk_hover.corner_radius_bottom_left = 8
+	talk_hover.content_margin_top = 8
+	talk_hover.content_margin_bottom = 8
+	talk_hover.shadow_color = Color(0.83, 0.65, 0.28, 0.35)
+	talk_hover.shadow_size = 4
+
+	var talk_disabled := StyleBoxFlat.new()
+	talk_disabled.bg_color = Color(0.12, 0.09, 0.08, 0.6)
+	talk_disabled.border_width_left = 1
+	talk_disabled.border_width_top = 1
+	talk_disabled.border_width_right = 1
+	talk_disabled.border_width_bottom = 1
+	talk_disabled.border_color = Color(0.35, 0.30, 0.25, 0.6)
+	talk_disabled.corner_radius_top_left = 8
+	talk_disabled.corner_radius_top_right = 8
+	talk_disabled.corner_radius_bottom_right = 8
+	talk_disabled.corner_radius_bottom_left = 8
+	talk_disabled.content_margin_top = 8
+	talk_disabled.content_margin_bottom = 8
+
+	talk_touch_btn.add_theme_stylebox_override("normal", talk_normal)
+	talk_touch_btn.add_theme_stylebox_override("hover", talk_hover)
+	talk_touch_btn.add_theme_stylebox_override("pressed", talk_hover)
+	talk_touch_btn.add_theme_stylebox_override("focus", talk_normal)
+	talk_touch_btn.add_theme_stylebox_override("disabled", talk_disabled)
+
+	talk_touch_btn.add_theme_color_override("font_color", Color(0.91, 0.84, 0.72, 1.0))
+	talk_touch_btn.add_theme_color_override("font_hover_color", Color(0.12, 0.09, 0.08, 1.0))
+	talk_touch_btn.add_theme_color_override("font_pressed_color", Color(0.12, 0.09, 0.08, 1.0))
+	talk_touch_btn.add_theme_color_override("font_disabled_color", Color(0.45, 0.40, 0.35, 0.6))
+
 	_on_state_changed()
 
 
@@ -153,12 +209,22 @@ func _process(_delta: float) -> void:
 		return
 	if GameManager.dialogue_open or GameManager.status != "playing":
 		interact_prompt.visible = false
+		talk_touch_btn.visible = false
+		joystick_zone.visible = false
 		return
+
+	# Show touch controls when playing
+	talk_touch_btn.visible = true
+	joystick_zone.visible = true
+
 	if _nearby_npc and is_instance_valid(_nearby_npc):
 		interact_prompt.visible = true
 		interact_prompt.text = _nearby_npc.get_prompt()
+		talk_touch_btn.disabled = false
 	else:
 		interact_prompt.visible = false
+		talk_touch_btn.disabled = true
+
 
 
 func _on_nearby_changed(npc: NpcAgent) -> void:
