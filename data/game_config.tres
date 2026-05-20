@@ -4,5 +4,5 @@
 
 [resource]
 script = ExtResource("1")
-api_base_url = "http://127.0.0.1:8080"
+api_base_url = "https://tanstack-start-app.court-of-whispers.workers.dev/"
 use_http_ai = true
