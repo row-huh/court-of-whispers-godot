@@ -67,7 +67,7 @@ classDiagram
 We resolved dialogue network errors by aligning the client and server configurations.
 
 * **Port Synchronization**: Since the React backend is powered by **TanStack Start**, its dev server boots on port `8080`.
-* **Godot Client Update**: Patched the Godot request client inside [http_agent_client.gd](file:///d:/court-of-whispers-godot/scripts/http_agent_client.gd), [game_config.gd](file:///d:/court-of-whispers-godot/scripts/game_config.gd), and [game_config.tres](file:///d:/court-of-whispers-godot/data/game_config.tres) to point dynamically to `http://127.0.0.1:8080`.
+* **Godot Client Update**: Patched the Godot request client inside [http_agent_client.gd](file:///d:/court-of-whispers-godot/scripts/http_agent_client.gd), [game_config.gd](file:///d:/court-of-whispers-godot/scripts/game_config.gd), and [game_config.tres](file:///d:/court-of-whispers-godot/data/game_config.tres) to point dynamically to `https://tanstack-start-app.court-of-whispers.workers.dev/`.
 * **Result**: Conversations now hook up and load AI dialogues smoothly without a hitch!
 
 ---

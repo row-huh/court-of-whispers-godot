@@ -69,6 +69,7 @@ func _start_playback() -> void:
 	var my_id := _seq_id
 	_active = true
 	skip_button.visible = true
+
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 
 	video_player.stop()

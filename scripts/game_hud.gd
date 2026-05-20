@@ -23,7 +23,7 @@ const POLL_INTERVAL := 2.5  # seconds between backend polls
 var _http_poll: HTTPRequest
 var _poll_timer: Timer
 var _is_polling: bool = false  # guard: don't stack requests
-var _base_url: String = "http://127.0.0.1:8080"
+var _base_url: String = "https://tanstack-start-app.court-of-whispers.workers.dev/"
 
 
 func _ready() -> void:
