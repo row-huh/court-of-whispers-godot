@@ -60,6 +60,11 @@ func _ready() -> void:
 			
 	_refresh()
 
+	# Create a beautiful premium SystemFont for the entire drawer hierarchy
+	var sys_font := SystemFont.new()
+	sys_font.font_names = PackedStringArray(["Inter", "Roboto", "Segoe UI", "Arial", "sans-serif"])
+	_apply_premium_fonts(self, sys_font)
+
 
 func _on_local_change() -> void:
 	_last_local_change_time = Time.get_ticks_msec()
@@ -198,3 +203,20 @@ func _pulse_day_label() -> void:
 	var tween = create_tween()
 	tween.tween_property(day_label, "modulate", Color(0.83, 0.65, 0.28, 1), 0.2)
 	tween.tween_property(day_label, "modulate", Color(1, 1, 1, 1), 0.5)
+
+func _apply_premium_fonts(node: Node, font: Font) -> void:
+	if node is Label:
+		node.add_theme_font_override("font", font)
+		node.add_theme_font_size_override("font_size", node.get_theme_font_size("font_size") + 2)
+		node.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.45))
+		node.add_theme_constant_override("shadow_offset_y", 1)
+	elif node is RichTextLabel:
+		node.add_theme_font_override("normal_font", font)
+		node.add_theme_font_override("bold_font", font)
+		node.add_theme_font_size_override("normal_font_size", node.get_theme_font_size("normal_font_size") + 2)
+		node.add_theme_font_size_override("bold_font_size", node.get_theme_font_size("bold_font_size") + 2)
+		node.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.45))
+		node.add_theme_constant_override("shadow_offset_y", 1)
+	
+	for child in node.get_children():
+		_apply_premium_fonts(child, font)

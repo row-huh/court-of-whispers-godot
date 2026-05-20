@@ -1,6 +1,6 @@
 extends Control
 
-@export var joystick_radius: float = 48.0
+@export var joystick_radius: float = 64.0
 
 @onready var knob: Control = $JoystickZone/JoystickBase/JoystickKnob
 @onready var base: Control = $JoystickZone/JoystickBase

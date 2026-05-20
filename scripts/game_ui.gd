@@ -201,6 +201,14 @@ func _ready() -> void:
 	talk_touch_btn.add_theme_color_override("font_pressed_color", Color(0.12, 0.09, 0.08, 1.0))
 	talk_touch_btn.add_theme_color_override("font_disabled_color", Color(0.45, 0.40, 0.35, 0.6))
 
+	# Beautiful, high-end SystemFont and layout overrides
+	var sys_font := SystemFont.new()
+	sys_font.font_names = PackedStringArray(["Inter", "Roboto", "Segoe UI", "Arial", "sans-serif"])
+	talk_touch_btn.add_theme_font_override("font", sys_font)
+	talk_touch_btn.add_theme_font_size_override("font_size", 16)
+	talk_touch_btn.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.45))
+	talk_touch_btn.add_theme_constant_override("shadow_offset_y", 1)
+
 	_on_state_changed()
 
 
@@ -252,10 +260,10 @@ func _on_state_changed() -> void:
 	drawer_btn.visible = playing
 	if not playing:
 		_drawer_open = false
-		hud.position.x = -350.0
+		hud.position.x = -380.0
 	elif GameManager.day == 1 and not _drawer_open and hud.position.x < -100:
 		_drawer_open = true
-		hud.position.x = 16.0
+		hud.position.x = 72.0
 		hud._refresh()
 		if hud.has_method("start_polling"):
 			hud.start_polling()
@@ -597,7 +605,7 @@ func _transition_to_page(idx: int) -> void:
 
 func _on_drawer_toggle() -> void:
 	_drawer_open = not _drawer_open
-	var target_x = 16.0 if _drawer_open else -350.0
+	var target_x = 72.0 if _drawer_open else -380.0
 	var tween = create_tween()
 	tween.tween_property(hud, "position:x", target_x, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	if _drawer_open:

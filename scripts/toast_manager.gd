@@ -74,10 +74,10 @@ func create_toast(text: String, theme_color: Color, border_color: Color) -> void
 	label.add_theme_color_override("font_color", theme_color)
 	label.add_theme_font_size_override("font_size", 14)
 	
-	# Apply standard beautiful medieval fonts if exists, otherwise fallback
-	var main_font = load("res://assets/fonts/Inter-Bold.ttf")
-	if main_font:
-		label.add_theme_font_override("font", main_font)
+	# Apply a beautiful, highly legible SystemFont with modern fallbacks
+	var sys_font := SystemFont.new()
+	sys_font.font_names = PackedStringArray(["Inter", "Roboto", "Segoe UI", "Arial", "sans-serif"])
+	label.add_theme_font_override("font", sys_font)
 		
 	panel.add_child(label)
 	
