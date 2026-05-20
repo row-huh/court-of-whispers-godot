@@ -1,0 +1,50 @@
+# Walkthrough - Production AI Backend Migration Complete
+
+We have successfully migrated the game's HTTP AI base URL from the local server (`http://127.0.0.1:8080`) to your secure, live Cloudflare Workers API base URL (`https://tanstack-start-app.court-of-whispers.workers.dev`).
+
+This successfully resolves the network failures when playing the game hosted on itch.io!
+
+---
+
+## 🛠️ Changes Implemented
+
+We updated the base URL configuration across the four key files that manage HTTP client requests and polling in the Godot project:
+
+### 1. Game Config Resource
+* **File**: [game_config.tres](file:///d:/court-of-whispers-godot/data/game_config.tres)
+* **Change**: Changed the saved `api_base_url` property:
+  ```diff
+  -api_base_url = "http://127.0.0.1:8080"
+  +api_base_url = "https://tanstack-start-app.court-of-whispers.workers.dev"
+  ```
+
+### 2. Game Config Script Export
+* **File**: [game_config.gd](file:///d:/court-of-whispers-godot/scripts/game_config.gd)
+* **Change**: Updated the default `@export` variable:
+  ```diff
+  -@export var api_base_url: String = "http://127.0.0.1:8080"
+  +@export var api_base_url: String = "https://tanstack-start-app.court-of-whispers.workers.dev"
+  ```
+
+### 3. Dialogue HTTP Agent Client
+* **File**: [http_agent_client.gd](file:///d:/court-of-whispers-godot/scripts/http_agent_client.gd)
+* **Change**: Updated the `DEFAULT_BASE_URL` constant fallback value:
+  ```diff
+  -const DEFAULT_BASE_URL := "http://127.0.0.1:8080"
+  +const DEFAULT_BASE_URL := "https://tanstack-start-app.court-of-whispers.workers.dev"
+  ```
+
+### 4. Game HUD Polling Client
+* **File**: [game_hud.gd](file:///d:/court-of-whispers-godot/scripts/game_hud.gd)
+* **Change**: Updated the private `_base_url` fallback variable:
+  ```diff
+  -var _base_url: String = "http://127.0.0.1:8080"
+  +var _base_url: String = "https://tanstack-start-app.court-of-whispers.workers.dev"
+  ```
+
+---
+
+## 🔍 Verification Summary
+
+* **No remaining references**: Ripgrep scans confirm there are no remaining active instances of `127.0.0.1` or `8080` in any of the game's GDScript or Godot resource files.
+* **CORS Reminder**: As a reminder, please check that your Cloudflare Worker is configured to send the appropriate `Access-Control-Allow-Origin` CORS headers, as itch.io hosts web builds inside unique sandbox frames that enforce strict cross-origin checks.

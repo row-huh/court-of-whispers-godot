@@ -1,0 +1,20 @@
+- [x] Update `game_manager.gd`
+  - [x] Add `night_phase_started` variable
+  - [x] Reset in `reset_state()` and `close_night()`
+  - [x] Remove deferred call from `apply_delta()` and reset flag
+  - [x] Trigger night phase in `close_dialogue()`
+- [x] Update `game_ui.gd` to only show night modal when dialogue is closed
+- [x] Premium Day Change Screen Overhaul
+  - [x] Add programmatical gold-themed button styling overrides for `NightCloseButton` in `game_ui.gd` `_ready()`
+  - [x] Rewrite `_populate_night_modal()` to construct correspondence-style whispers and centered layout
+  - [x] Implement `[table=3]` in `_populate_night_modal()` for metric shifts
+  - [x] Replace `_format_delta_row()` with cell-builder `_format_delta_cell()` using robust green/red/gold coloring and arrow indicators
+- [x] Dynamic Music and Dialogue Banners
+  - [x] Add `music_stop_requested` signal to `game_manager.gd`
+  - [x] Connect dialogue submission of 5th message to `music_stop_requested` signal in `dialogue_controller.gd`
+  - [x] Implement `play_song(song_name: String)` and `stop_song()` in `game_ui.gd`
+  - [x] Connect `music_stop_requested` signal to `stop_song()` in `game_ui.gd`
+  - [x] Set up `_night_song_triggered_day` state and trigger music in `_populate_night_modal()`
+  - [x] Implement `_show_custom_banner()` programmatic builder in `game_ui.gd`
+  - [x] Intercept `_on_night_close_pressed()` to show custom pop-ups on Day 1 and Day 4 before closing
+  - [x] Reset `_night_song_triggered_day` on game restart

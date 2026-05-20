@@ -1,36 +1,44 @@
-# Game HUD Redesign: Slide-out Drawer
+# Live HUD State Sync from Backend
 
-We will completely overhaul the top-left `GameHUD` to use your custom `assets/ui/top_left_ui.PNG` asset and implement a top-down slide-out mechanism so it doesn't permanently obscure the screen.
+## Problem
+
+The HUD values (trust bars, proof, suspicion) are stored in `GameManager` on the Godot side, but they are **only updated via `apply_delta`** after each LLM response. If the player hasn't spoken recently, or the backend changes agent state via the night phase, the HUD won't reflect those changes until `state_changed` fires.
+
+However, the real issue you're seeing is different — the `_refresh()` in `game_hud.gd` is gated by `if not visible: return`. Since the drawer starts *closed* (off-screen), `visible` is `false` on the `GameHUD` node, so **_refresh never fires**. Additionally, when the HUD slides in/out by changing `position.x`, `visible` never changes — meaning `_refresh` never gets called.
+
+## Root Cause
+
+1. `_refresh()` returns early when `hud.visible == false`, but the drawer uses *position animation* not visibility toggling — so `visible` is always `false` when `status != "playing"`, and once set to `true` when playing starts, it stays `true` but `_refresh` was never called at the right moment.
+2. The `%DrawerToggleButton` `unique_name_in_owner` works, but the button needs to correctly sit above the HUD layer in the scene tree (already fixed).
 
 ## Proposed Changes
 
-### 1. Scene Layout (`scenes/ui/game_ui.tscn`)
-- **[MODIFY] `GameHUD` Structure**
-  - Change the root `GameHUD` node to act as the moving container. We will anchor it to the top-left but allow its Y-position to move.
-  - Set the background of the HUD to a `TextureRect` using `assets/ui/top_left_ui.PNG`.
-  - Re-parent and manually position all 6 `ProgressBar`s, `DayLabel`, `TurnsLabel`, and `QuestLabel` using absolute coordinates (`offset_top`, `offset_left`) so they perfectly align with the drawn elements in your new background image.
-  - Change the progress bars to use `StyleBoxFlat` overrides so they blend cleanly (removing generic grey backgrounds).
+### Fix 1: Remove visibility guard in `_refresh`
 
-- **[NEW] Toggle Button**
-  - Add a small `Button` (or `TextureButton`) anchored securely to the top-left corner of the screen. This button will remain visible at all times and will act as the toggle switch for the drawer.
+#### [MODIFY] game_hud.gd
+- Remove the `if not visible: return` guard — `_refresh` should always update the data. The `GameManager.state_changed` signal fires reliably when `apply_delta` is called.
 
-### 2. Animation Logic (`scripts/game_ui.gd`)
-- **[MODIFY] `game_ui.gd`**
-  - Add a new boolean state `_is_drawer_open = false`.
-  - Connect the new toggle button's `pressed` signal to a new `_on_drawer_toggle_pressed()` function.
-  - Implement a smooth animation using Godot 4's `Tween` system. When the button is pressed, the HUD will smoothly slide down into view (`position.y` animates to `0`), and when pressed again, it will slide back up off-screen (`position.y` animates to `-400` or whatever the height of the image is).
-  - All existing functionality in `game_hud.gd` that updates the bars will remain exactly the same since we are keeping the node names identical.
+### Fix 2: Add a `/api/state` GET endpoint in the backend
 
-## Open Questions
+#### [NEW] `src/routes/api/state.ts`
+- Returns the current world state (trust values, proof, suspicion, flags) from a in-memory store.
+- The backend currently doesn't persist state between requests — each call to `/api/agent` is stateless, receiving context from the Godot client.
+- Since the backend is stateless (Godot is the source of truth), this endpoint isn't needed. The correct fix is in Godot.
 
-> [!IMPORTANT]
-> **Toggle Button Appearance**: Do you have an icon image you want to use for the "Open Stats" button, or should I just use a simple button with text like "Stats / Quests" for now?
+### Fix 3: Ensure `_refresh` fires when drawer opens
 
-> [!NOTE]
-> Since the exact placement of the bars over your image requires precise pixel pushing, I will make my best educated guess on coordinates. After implementation, if any bar is slightly misaligned with your drawing, I can easily nudge them by a few pixels based on your feedback.
+#### [MODIFY] `game_ui.gd`
+- In `_on_drawer_toggle()`, after tweening, call `hud._refresh()` to force a UI update when the drawer is opened.
 
-## Verification Plan
-1. Restart the Godot project.
-2. Verify the HUD starts hidden off-screen with only the toggle button visible.
-3. Click the toggle button to ensure the HUD smoothly slides down.
-4. Verify all 6 bars and text elements correctly align over the background image and update as turns pass.
+### Fix 4: Ensure `_refresh` fires on state changes while playing
+
+The `_refresh()` is already connected to `GameManager.state_changed` in `game_hud.gd._ready()`. The only missing piece is the visibility guard causing it to skip.
+
+## Summary of Changes
+
+| File | Change |
+|---|---|
+| `game_hud.gd` | Remove early-return guard `if not visible` |
+| `game_ui.gd` | Call `hud._refresh()` after drawer tween completes |
+
+These are minimal, targeted fixes that will make the values live and responsive.

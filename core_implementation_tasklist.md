@@ -1,0 +1,24 @@
+# Task List
+
+- `[x]` Backend Setup
+    - `[x]` Initialize `global_state.json`
+    - `[x]` Initialize `memory/agents/army_commander.json`
+- `[x]` Implement Backend Tools
+    - `[x]` `backend/tools/pathfinding.py` (A*)
+    - `[x]` `backend/tools/locations.py`
+    - `[x]` `backend/tools/talk.py`
+    - `[x]` `backend/tools/coup.py`
+- `[x]` Implement Core Backend
+    - `[x]` `backend/world_state.py`
+    - `[x]` `backend/agents/army_commander.py` (Ollama integration)
+    - `[x]` `backend/scheduler.py`
+    - `[x]` `backend/main.py` (FastAPI)
+- `[x]` Frontend Integration
+    - `[x]` Update `index.tsx` with backend calls
+    - `[x]` Implement Proximity Detection
+    - `[x]` Implement Conversation UI
+    - `[x]` Implement Victory Screen
+- `[x]` Verification
+    - `[x]` Test pathfinding
+    - `[x]` Test conversation flow
+    - `[x]` Verify win condition
